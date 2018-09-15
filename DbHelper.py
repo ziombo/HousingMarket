@@ -12,12 +12,12 @@ class DbHelper:
     def __exit__(self, type, value, traceback):
         pass
 
-    def SaveOffers(self, offers):
+    def save_offers(self, offers):
         print("Now saving", len(offers), "offers")
         # Using upsert to prevent saving same offers. Based on URL
         [self.db['offers'].upsert(offer.ToDict(), ['url', 'title']) for offer in offers]
         print("Offers saved successfully")
 
-    def ClearOffersTable(self):
+    def clear_offers_table(self):
         if self.db['offers'].exists:
             self.db['offers'].delete()
