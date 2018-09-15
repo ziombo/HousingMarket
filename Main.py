@@ -1,21 +1,17 @@
-
-
+import requests
+from bs4 import BeautifulSoup
+from OtoDomScraper import get_offers_from_html, scrape_next_page
+from DbHelper import DbHelper
 
 url = 'https://www.otodom.pl/wynajem/mieszkanie/warszawa/'
 
 r = requests.get(url)
 html_soup = BeautifulSoup(r.text, 'html.parser')
-offers = ScrapingHelper.GetOffersFromHtml(html_soup)
+offers = get_offers_from_html(html_soup)
 
-#offers_html = html_soup.find_all('article', class_='offer-item')
-
-#offers = list()
-#for offer in offers_html:
-    #offers.append(ScrapingHelper.ScrapeOffer(offer))
-
-
+print(*offers, '\n')
 with DbHelper() as db:
-    #db.ClearOffersTable()
-    db.SaveOffers(offers)
+#     # db.ClearOffersTable()
+    db.save_offersd(offers)
 
-url = ScrapingHelper.ScrapeNextPage(html_soup)
+url = scrape_next_page(html_soup)

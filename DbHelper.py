@@ -1,6 +1,7 @@
 import dataset
 
-class DbHelper:
+
+class  DbHelper:
     CONNECT_STRING = 'sqlite:///OtoDomOffers.db'
 
     def __init__(self):
@@ -14,8 +15,8 @@ class DbHelper:
 
     def save_offers(self, offers):
         print("Now saving", len(offers), "offers")
-        # Using upsert to prevent saving same offers. Based on URL
-        [self.db['offers'].upsert(offer.ToDict(), ['url', 'title']) for offer in offers]
+        # Using upsert to prevent saving same offers. Based on url and title
+        [self.db['offers'].upsert(offer.to_dict(), ['url', 'title']) for offer in offers]
         print("Offers saved successfully")
 
     def clear_offers_table(self):

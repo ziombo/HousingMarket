@@ -23,6 +23,9 @@ class Offer:
         self.Area = area
         self.Rooms = rooms
 
+    def __str__(self):
+        return f'Title: {self.Title}\n Price: {self.Price}\n\n'
+
     def to_dict(self):
         return {
             'url': self.Url,
