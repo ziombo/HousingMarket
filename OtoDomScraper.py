@@ -1,15 +1,13 @@
-import requests
-from urllib.parse import quote, quote_plus, urljoin, urlparse, urldefrag
-from bs4 import BeautifulSoup
-from IPython.display import display
+from urllib.parse import urldefrag
+
 from Models import Offer
 
 
-class ScrapingHelper:
+class OtoDomScraper:
     @staticmethod
     def get_offers_from_html(html_soup):
         offers_html = html_soup.find_all('article', class_='offer-item')
-        offers = ScrapingHelper.scrape_offers(offers_html)
+        offers = OtoDomScraper.scrape_offers(offers_html)
 
         return offers
 
@@ -17,7 +15,7 @@ class ScrapingHelper:
     def scrape_offers(offers_html):
         offers = list()
         for offer_html in offers_html:
-            offer = ScrapingHelper.scrape_offer(offer_html)
+            offer = OtoDomScraper.scrape_offer(offer_html)
             if not any(offer.Url == o.Url and offer.Title == o.Title for o in offers):
                 offers.append(offer)
 
@@ -29,7 +27,7 @@ class ScrapingHelper:
 
         offer_title = offer_html.find(class_='offer-item-title').get_text(strip=True)
 
-        # Wywalić adres do innej tabeli? City/District/Street/Street_Number
+        # TODO: Wywalić adres do innej tabeli? City/District/Street/Street_Number
         offer_region = offer_html.find('p', class_=['text-nowrap hidden-xs']).get_text(
             strip=True)
         # Getting rid of "Mieszkanie na wynajem: "
@@ -51,7 +49,4 @@ class ScrapingHelper:
     @staticmethod
     def scrape_next_page(page_html):
         next_page_html = page_html.select('li.pager-next > a')
-        if len(next_page_html) > 0:
-            return next_page_html[0]['href']
-        
-        return None
+        return next_page_html[0] if len(next_page_html) > 0 else None
