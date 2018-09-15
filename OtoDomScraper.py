@@ -7,18 +7,24 @@ from Models import Offer
 
 class ScrapingHelper:
     @staticmethod
-    def GetOffersFromHtml(html_soup):
+    def get_offers_from_html(html_soup):
         offers_html = html_soup.find_all('article', class_='offer-item')
+        offers = ScrapingHelper.scrape_offers(offers_html)
+
+        return offers
+
+    @staticmethod
+    def scrape_offers(offers_html):
         offers = list()
         for offer_html in offers_html:
-            offer = ScrapingHelper.ScrapeOffer(offer_html)
+            offer = ScrapingHelper.scrape_offer(offer_html)
             if not any(offer.Url == o.Url and offer.Title == o.Title for o in offers):
                 offers.append(offer)
 
         return offers
 
     @staticmethod
-    def ScrapeOffer(offer_html):
+    def scrape_offer(offer_html):
         offer_url = urldefrag(offer_html['data-url'])[0]
 
         offer_title = offer_html.find(class_='offer-item-title').get_text(strip=True)
@@ -43,7 +49,7 @@ class ScrapingHelper:
                      offer_rooms)
 
     @staticmethod
-    def ScrapeNextPage(page_html):
+    def scrape_next_page(page_html):
         next_page_html = page_html.select('li.pager-next > a')
         if len(next_page_html) > 0:
             return next_page_html[0]['href']
