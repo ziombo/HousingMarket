@@ -12,6 +12,6 @@ offers = get_offers_from_html(html_soup)
 print(*offers, '\n')
 with DbHelper() as db:
 #     # db.ClearOffersTable()
-    db.save_offersd(offers)
+    db.save_offers(offers)
 
 url = scrape_next_page(html_soup)
