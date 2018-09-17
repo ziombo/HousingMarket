@@ -23,7 +23,6 @@ def scrape_offer(offer_soup):
 
     offer_title = offer_soup.find(class_='offer-item-title').get_text(strip=True)
 
-    # TODO: Wywalić adres do innej tabeli? City/District/Street/Street_Number
     offer_region = offer_soup.find('p', class_=['text-nowrap hidden-xs']).get_text(
         strip=True)
     # Getting rid of "Mieszkanie na wynajem: "

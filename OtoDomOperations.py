@@ -2,16 +2,18 @@ import requests
 from bs4 import BeautifulSoup
 from time import sleep
 
+from DbHelper import DbHelper
 from OtoDomScraper import get_offers_from_soup, scrape_next_page
 
 
 class BaseController():
-    def get_html_soup(self, url):
+    @staticmethod
+    def get_html_soup(url):
         r = requests.get(url)
         return BeautifulSoup(r.text, 'html.parser')
 
 
-class OtodomController(BaseController):
+class OtodomOperations(BaseController):
     def __init__(self):
         self.base_url = 'https://www.otodom.pl/wynajem/mieszkanie/warszawa/'
 
@@ -32,7 +34,7 @@ class OtodomController(BaseController):
 
         return offers
 
-    def get_otodom_offers(self, no_of_pages=1):
+    def get_otodom_offers(self, no_of_pages=1, delay=0):
         """
         Returns list of offers from otodom for Warsaw from number of pages
 
@@ -48,6 +50,15 @@ class OtodomController(BaseController):
             url = self._get_next_page(url)
 
             counter += 1
+            sleep(delay)
+
+        return offers
+
+    def download_otodom_offers(self, no_of_pages=1, delay=0):
+        offers = self.get_otodom_offers(no_of_pages, delay)
+
+        with DbHelper() as db:
+            db.save_offers(offers)
 
         return offers
 
