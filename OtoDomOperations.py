@@ -7,30 +7,44 @@ from OtoDomScraper import get_offers_from_soup, scrape_next_page
 
 
 class BaseController():
-    @staticmethod
-    def get_html_soup(url):
-        r = requests.get(url)
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                      '(KHTML, like Gecko) Chrome/69.0.3497.92 Safari/537.36',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7'
+    }
+
+    def __init__(self):
+        self.session = requests.Session()
+
+    def get_html_soup(self, url):
+        r = self.session.get(url, headers=self.headers)
+        print(r.request.headers)
         return BeautifulSoup(r.text, 'html.parser')
 
 
 class OtodomOperations(BaseController):
     def __init__(self):
+        super().__init__()
         self.base_url = 'https://www.otodom.pl/wynajem/mieszkanie/warszawa/'
 
-    def get_all_otodom_offers(self):
+    def get_all_otodom_offers(self, delay=0):
         """
         Returns list of all offers from otodom for Warsaw.
         Each request is made with 2 seconds delay.
 
+        :param delay: seconds to wait between each request
         :return: list of offers
         """
         url = self.base_url
         offers = list()
 
         while url:
-            offers.extend(self.get_otodom_page_offers(url))
-            url = self._get_next_page(url)
-            sleep(2)
+            new_offers, next_page = self.get_otodom_page_offers(url)
+            offers.extend(new_offers)
+            url = next_page
+
+            sleep(delay)
 
         return offers
 
@@ -39,6 +53,7 @@ class OtodomOperations(BaseController):
         Returns list of offers from otodom for Warsaw from number of pages
 
         :param no_of_pages: number of pages to crawl through
+        :param delay: seconds to wait between each request
         :return: list of offers
         """
 
@@ -46,8 +61,9 @@ class OtodomOperations(BaseController):
         offers = list()
         counter = 0
         while url and counter < no_of_pages:
-            offers.extend(self.get_otodom_page_offers(url))
-            url = self._get_next_page(url)
+            new_offers, next_page = self.get_otodom_page_offers(url)
+            offers.extend(new_offers)
+            url = next_page
 
             counter += 1
             sleep(delay)
@@ -59,14 +75,9 @@ class OtodomOperations(BaseController):
 
         with DbHelper() as db:
             db.save_offers(offers)
-
         return offers
 
     def get_otodom_page_offers(self, url):
         print("Requesting page:", url)
         page_soup = self.get_html_soup(url)
-        return get_offers_from_soup(page_soup)
-
-    def _get_next_page(self, url):
-        page_soup = self.get_html_soup(url)
-        return scrape_next_page(page_soup)
+        return get_offers_from_soup(page_soup), scrape_next_page(page_soup)
