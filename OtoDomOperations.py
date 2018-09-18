@@ -19,6 +19,7 @@ class BaseController():
 
     def get_html_soup(self, url):
         r = self.session.get(url, headers=self.headers)
+        self.headers['referer'] = url
         print(r.request.headers)
         return BeautifulSoup(r.text, 'html.parser')
 
