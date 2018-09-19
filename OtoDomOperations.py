@@ -20,7 +20,7 @@ class BaseController():
     def get_html_soup(self, url):
         r = self.session.get(url, headers=self.headers)
         self.headers['referer'] = url
-        print(r.request.headers)
+
         return BeautifulSoup(r.text, 'html.parser')
 
 
@@ -61,11 +61,16 @@ class OtodomOperations(BaseController):
         url = self.base_url
         offers = list()
         counter = 0
+
         while url and counter < no_of_pages:
             new_offers, next_page = self.get_otodom_page_offers(url)
-            offers.extend(new_offers)
-            url = next_page
 
+            offers.extend(checked_offer for checked_offer in new_offers if
+                          not any(checked_offer.Url == o.Url and checked_offer.Title ==
+                                  o.Title for o in
+                                  offers))
+
+            url = next_page
             counter += 1
             sleep(delay)
 
