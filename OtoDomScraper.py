@@ -25,8 +25,10 @@ def scrape_offer(offer_soup):
 
     offer_region = offer_soup.find('p', class_=['text-nowrap hidden-xs']).get_text(
         strip=True)
-    # Getting rid of "Mieszkanie na wynajem: "
-    offer_region = offer_region[offer_region.index(':') + 2:]
+    # Getting rid of "Mieszkanie na wynajem: " and splitting offer_region to parts
+    offer_region = \
+        list(map(str.strip, offer_region[offer_region.index(':') + 2:].split(',')))
+    city, district, street = _get_address_parts_from_region(offer_region)
 
     offer_price = offer_soup.find(class_='offer-item-price').get_text(strip=True)
     # Getting rid of currency
@@ -38,10 +40,20 @@ def scrape_offer(offer_soup):
 
     offer_rooms = offer_soup.find(class_='offer-item-rooms').get_text(strip=True)[0]
 
-    return Offer(offer_url, offer_title, offer_region, offer_price, offer_area,
+    return Offer(offer_url, offer_title, city, district, street,
+                 offer_price,
+                 offer_area,
                  offer_rooms)
 
 
 def scrape_next_page(page_soup):
     next_page_soup = page_soup.select('li.pager-next > a')
     return next_page_soup[0]['href'] if len(next_page_soup) > 0 else None
+
+
+def _get_address_parts_from_region(region):
+    if len(region) < 3:
+        region.append('')
+        return _get_address_parts_from_region(region)
+    else:
+        return region

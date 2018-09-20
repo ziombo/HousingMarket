@@ -15,10 +15,12 @@ class Address:
 
 
 class Offer:
-    def __init__(self, url, title, region, price, area, rooms):
+    def __init__(self, url, title, city, district, street, price, area, rooms):
         self.Url = url
         self.Title = title
-        self.Region = region
+        self.City = city
+        self.District = district
+        self.Street = street
         self.Price = price
         self.Area = area
         self.Rooms = rooms
@@ -30,7 +32,9 @@ class Offer:
         return {
             'url': self.Url,
             'title': self.Title,
-            'region': self.Region,
+            'city': self.City,
+            'district': self.District,
+            'street': self.Street,
             'price': self.Price,
             'area': self.Area,
             'rooms': self.Rooms
